@@ -112,6 +112,9 @@ void closedir(DIR* dir);
 #ifndef MOD_USE_BIGGER_SCREEN_SIZE
 #define C_DEFAULT_SCREEN_WIDTH  (854)
 #define C_DEFAULT_SCREEN_HEIGHT (480)
+#elif defined(__DREAMCAST__)
+#define C_DEFAULT_SCREEN_WIDTH  (800)
+#define C_DEFAULT_SCREEN_HEIGHT (600)
 #else
 #define C_DEFAULT_SCREEN_WIDTH  (1280)
 #define C_DEFAULT_SCREEN_HEIGHT (720)
@@ -250,7 +253,7 @@ enum eTileID
 	TILE_STONE_BRICKS,
 	TILE_MUSHROOM1_BLOCK,
 	TILE_MUSHROOM2_BLOCK,
-	TILE_CLOTH_00 = 101,
+	TILE_CLOTH_00 = 101, // @TODO: make these save on newer worlds
 	TILE_CLOTH_10,
 	TILE_CLOTH_20,
 	TILE_CLOTH_30,
@@ -381,6 +384,7 @@ enum eTileID
 
 	// Custom items
 	ITEM_ROCKET = 470,
+	ITEM_QUIVER = 484,
 };
 
 enum // Textures
@@ -423,8 +427,8 @@ enum // Textures
 	TEXTURE_BOOKSHELF,
 	TEXTURE_MOSSY_STONE,
 	TEXTURE_OBSIDIAN,
-	TEXTURE_OBSIDIAN_CRYING,
-	TEXTURE_NONE39,
+	TEXTURE_OBSIDIAN_CRYING, // would become grass side overaly after removel
+	TEXTURE_NONE39, // tall grass
 	TEXTURE_NONE40,
 	TEXTURE_CHEST_TWO_FRONT_LEFT,
 	TEXTURE_CHEST_TWO_FRONT_RIGHT,
@@ -440,7 +444,7 @@ enum // Textures
 	TEXTURE_LEAVES_TRANSPARENT,
 	TEXTURE_LEAVES_OPAQUE,
 	TEXTURE_NONE54,
-	TEXTURE_NONE55,
+	TEXTURE_NONE55, // dead bush
 	TEXTURE_NONE56,
 	TEXTURE_CHEST_TWO_BACK_LEFT,
 	TEXTURE_CHEST_TWO_BACK_RIGHT,
@@ -544,6 +548,9 @@ enum eRenderShape
 	SHAPE_LADDER,
 	SHAPE_UNK9,
 	SHAPE_STAIRS,
+	SHAPE_FENCE,
+	SHAPE_CACTUS,
+	SHAPE_RANDOM_CROSS
 };
 
 enum eRenderLayer
@@ -553,7 +560,10 @@ enum eRenderLayer
 };
 
 typedef uint8_t TileID;
-// TODO: "FullTile" struct with TileID and auxvalue?
+// @TODO: Rename this to "TileTypeId"
+// Rename "Tile" to "TileType"
+// Create "Tile" class containing TileTypeId, and TileData
+typedef uint8_t TileData;
 
 /*struct Pos
 {

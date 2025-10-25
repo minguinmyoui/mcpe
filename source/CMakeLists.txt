@@ -4,7 +4,7 @@ project(reminecraftpe-core)
 # Build
 add_library(reminecraftpe-core STATIC
     common/CThread.cpp
-	common/DataIO.cpp
+    common/DataIO.cpp
     common/Logger.cpp
     common/Matrix.cpp
     common/Mth.cpp
@@ -70,6 +70,7 @@ add_library(reminecraftpe-core STATIC
     client/gui/Screen.cpp
     client/gui/screens/OptionsScreen.cpp
     client/gui/screens/StartMenuScreen.cpp
+    client/gui/screens/ConvertWorldScreen.cpp
     client/gui/screens/CreateWorldScreen.cpp
     client/gui/screens/DirectConnectScreen.cpp
     client/gui/screens/DisconnectionScreen.cpp
@@ -138,21 +139,21 @@ add_library(reminecraftpe-core STATIC
     client/player/input/TouchscreenInput_TestFps.cpp
     client/player/input/UnifiedTurnBuild.cpp
     client/network/ClientSideNetworkHandler.cpp
-	nbt/CompoundTag.cpp
-	nbt/DoubleTag.cpp
-	nbt/EndTag.cpp
-	nbt/FloatTag.cpp
-	nbt/Int8ArrayTag.cpp
-	nbt/Int8Tag.cpp
-	nbt/Int16Tag.cpp
-	nbt/Int32ArrayTag.cpp
-	nbt/Int32Tag.cpp
-	nbt/Int64ArrayTag.cpp
-	nbt/Int64Tag.cpp
-	nbt/ListTag.cpp
-	nbt/NbtIo.cpp
-	nbt/StringTag.cpp
-	nbt/Tag.cpp
+    nbt/CompoundTag.cpp
+    nbt/DoubleTag.cpp
+    nbt/EndTag.cpp
+    nbt/FloatTag.cpp
+    nbt/Int8ArrayTag.cpp
+    nbt/Int8Tag.cpp
+    nbt/Int16Tag.cpp
+    nbt/Int32ArrayTag.cpp
+    nbt/Int32Tag.cpp
+    nbt/Int64ArrayTag.cpp
+    nbt/Int64Tag.cpp
+    nbt/ListTag.cpp
+    nbt/NbtIo.cpp
+    nbt/StringTag.cpp
+    nbt/Tag.cpp
     network/packets/UpdateBlockPacket.cpp
     network/packets/RequestChunkPacket.cpp
     network/packets/PlayerEquipmentPacket.cpp
@@ -206,7 +207,7 @@ add_library(reminecraftpe-core STATIC
     world/entity/WaterAnimal.cpp
     world/entity/Monster.cpp
     world/entity/Rocket.cpp
-	world/entity/EntityFactory.cpp
+    world/entity/EntityFactory.cpp
     world/entity/MobFactory.cpp
     world/entity/Chicken.cpp
     world/entity/Cow.cpp
@@ -251,6 +252,9 @@ add_library(reminecraftpe-core STATIC
     world/level/levelgen/feature/ClayFeature.cpp
     world/level/levelgen/feature/FlowerFeature.cpp
     world/level/levelgen/feature/SpruceFeature.cpp
+    world/level/levelgen/feature/PumpkinFeature.cpp
+    world/level/levelgen/feature/CactusFeature.cpp
+    world/level/levelgen/feature/VegetationFeature.cpp
     world/level/levelgen/biome/Biome.cpp
     world/level/levelgen/biome/BiomeSource.cpp
     world/level/levelgen/chunk/RandomLevelSource.cpp
@@ -258,6 +262,7 @@ add_library(reminecraftpe-core STATIC
     world/level/levelgen/chunk/ChunkCache.cpp
     world/level/levelgen/chunk/ChunkPos.cpp
     world/level/levelgen/chunk/ChunkSource.cpp
+	world/level/levelgen/chunk/DataLayer.cpp
     world/level/levelgen/chunk/EmptyLevelChunk.cpp
     world/level/levelgen/chunk/PerformanceTestChunkSource.cpp
     world/level/levelgen/chunk/TestChunkSource.cpp
@@ -271,6 +276,9 @@ add_library(reminecraftpe-core STATIC
     world/item/ItemInstance.cpp
     world/item/RocketItem.cpp
     world/item/Item.cpp
+    world/item/AuxTileItem.cpp
+    world/item/ClothItem.cpp
+    world/item/SlabItem.cpp
     world/particle/RedDustParticle.cpp
     world/particle/TerrainParticle.cpp
     world/particle/BubbleParticle.cpp
@@ -319,6 +327,14 @@ add_library(reminecraftpe-core STATIC
     world/tile/FarmTile.cpp
     world/tile/DoorTile.cpp
     world/tile/RocketLauncherTile.cpp
+    world/tile/CactusTile.cpp
+    world/tile/TallGrass.cpp
+    world/tile/DeadBush.cpp
+    world/tile/PumpkinTile.cpp
+    world/tile/SoulSandTile.cpp
+    world/tile/GlowstoneTile.cpp
+    world/tile/Web.cpp
+    world/tile/FenceTile.cpp
     renderer/GL/GL.cpp
 )
 target_include_directories(reminecraftpe-core PUBLIC . ..)
@@ -329,7 +345,7 @@ target_link_libraries(reminecraftpe-core PUBLIC raknet)
 
 # zlib
 add_library(zlib-interface INTERFACE)
-if(WIN32)
+if(MCPE_WIN32)
     # Compile Vendored ZLib
     add_subdirectory(../thirdparty/zlib zlib)
     target_link_libraries(zlib-interface INTERFACE zlib)
@@ -345,7 +361,7 @@ else()
 endif()
 target_link_libraries(reminecraftpe-core PUBLIC zlib-interface)
 # OpenGL Support Code
-if(WIN32)
+if(MCPE_WIN32)
     target_sources(reminecraftpe-core PRIVATE ../thirdparty/GL/GLExt.cpp)
 endif()
 

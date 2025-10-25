@@ -55,7 +55,20 @@ void AppPlatform::finish()
 
 std::string AppPlatform::getDateString(int time)
 {
-	return "";
+	time_t tt = time;
+	struct tm t;
+#ifdef _WIN32
+	gmtime_s(&t, &tt);
+#else
+	gmtime_r(&tt, &t);
+#endif
+    
+	// Format String
+	char buf[2048];
+	strftime(buf, sizeof buf, "%b %d %Y %H:%M:%S", &t);
+    
+	// Return
+	return std::string(buf);
 }
 
 // ??? AppPlatform::getOptionStrings()
@@ -191,6 +204,11 @@ void AppPlatform::vibrate(int milliSeconds)
 {
 }
 
+bool AppPlatform::getRecenterMouseEveryTick()
+{
+    return true;
+}
+
 void AppPlatform::_fireLowMemory()
 {
 	
@@ -228,16 +246,32 @@ bool AppPlatform::hasFileSystemAccess()
 
 std::string AppPlatform::getPatchData()
 {
-	const AssetFile file = readAssetFile("patches/patch_data.txt", false);
+	AssetFile file = readAssetFile(_getPatchDataPath(), false);
+	if (!file.data)
+		return "";
+
 	std::string out = std::string(file.data, file.data + file.size);
 	delete file.data;
 	return out;
 }
 
+std::string AppPlatform::getAssetPath(const std::string& path) const
+{
+	std::string realPath = path;
+	if (realPath.size() && realPath[0] == '/')
+	{
+		// trim it off
+		realPath = realPath.substr(1);
+	}
+	realPath = "assets/" + realPath;
+
+	return realPath;
+}
+
 AssetFile AppPlatform::readAssetFile(const std::string& path, bool quiet) const
 {
 	std::string realPath = getAssetPath(path);
-	std::ifstream ifs(realPath.c_str());
+	std::ifstream ifs(realPath.c_str(), std::ios::binary);
     
 	// Open File
 	if (!ifs.is_open())
@@ -279,16 +313,3 @@ SoundSystem* const AppPlatform::getSoundSystem() const
 }
 
 #endif
-
-std::string AppPlatform::getAssetPath(const std::string &path) const
-{
-	std::string realPath = path;
-	if (realPath.size() && realPath[0] == '/')
-	{
-		// trim it off
-		realPath = realPath.substr(1);
-	}
-	realPath = "assets/" + realPath;
-	
-	return realPath;
-}

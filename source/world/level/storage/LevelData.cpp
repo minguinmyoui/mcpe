@@ -109,7 +109,11 @@ CompoundTag LevelData::createTag() const
 	CompoundTag* playerTag = nullptr;
 
 	if (m_playerTag)
+    {
 		playerTag = m_playerTag->copy();
+        // Don't want to accidentally de-allocate the current playerTag
+        playerTag->leak();
+    }
 
 	writeTagData(levelTag, playerTag);
 
@@ -153,6 +157,8 @@ void LevelData::loadTagData(CompoundTag& tag)
     if (playerTag)
     {
         setPlayerTag(playerTag);
+        // "Transfer ownership" of tag contents to playerTag copy
+        playerTag->leak();
     }
 }
 
@@ -243,7 +249,7 @@ void PlayerData::loadPlayer(Player& player) const
 	player.m_distanceFallen = m_distanceFallen;
 	player.m_fireTicks = field_24;
 	player.m_airCapacity = field_26;
-	player.m_onGround = field_28;
+	player.m_bOnGround = field_28;
 
 	// @NOTE: Why are we updating m_pos, m_oPos and m_posPrev above if we do this?
 	player.setPos(m_pos);
@@ -261,7 +267,7 @@ void PlayerData::savePlayer(const Player& player)
 	m_distanceFallen = player.m_distanceFallen;
 	field_24 = player.m_fireTicks;
 	field_26 = player.m_airCapacity;
-	field_28 = player.m_onGround;
+	field_28 = player.m_bOnGround;
 
 	// TODO: survival mode stuff
 	for (int i = 0; i < C_MAX_HOTBAR_ITEMS; i++)

@@ -20,12 +20,13 @@
 
 #define C_CHUNKS_TO_SAVE_PER_TICK (2)
 
-ExternalFileLevelStorage::ExternalFileLevelStorage(const std::string& a, const std::string& path) :
-	field_8(a),
+ExternalFileLevelStorage::ExternalFileLevelStorage(const std::string& name, const std::string& path, bool forceConversion) :
+	m_levelName(name),
 	m_levelDirPath(path),
 	m_timer(0),
 	m_storageVersion(LEVEL_STORAGE_VERSION_DEFAULT),
-	m_lastEntitySave(-999999)
+	m_lastEntitySave(-999999),
+    m_bForceConversion(forceConversion)
 {
 	m_pRegionFile = nullptr;
 	m_pLevel = nullptr;
@@ -45,7 +46,10 @@ ExternalFileLevelStorage::ExternalFileLevelStorage(const std::string& a, const s
 
 	m_storageVersion = m_pLevelData->getStorageVersion();
 
-	readPlayerData(datPlayer, *m_pLevelData);
+    if (m_storageVersion <= 1)
+    {
+        readPlayerData(datPlayer, *m_pLevelData);
+    }
 }
 
 ExternalFileLevelStorage::~ExternalFileLevelStorage()
@@ -83,8 +87,11 @@ void ExternalFileLevelStorage::saveLevelData(const std::string& levelPath, Level
 	std::string pathOld = pathBase + "level.dat_old";
 
 #ifndef ENH_DISABLE_FORCED_SAVE_UPGRADES
-	// Forces world to upgrade to new default storage version.
-	levelData->setStorageVersion(LEVEL_STORAGE_VERSION_DEFAULT);
+    if (m_bForceConversion)
+    {
+        // Forces world to upgrade to new default storage version.
+        levelData->setStorageVersion(LEVEL_STORAGE_VERSION_DEFAULT);
+    }
 #endif
 
 	writeLevelData(path, *levelData, players);
@@ -232,12 +239,12 @@ LevelChunk* ExternalFileLevelStorage::load(Level* level, const ChunkPos& pos)
 	pBitStream->Read((char*)pData, 16 * 16 * 128 * sizeof(TileID));
 
 	LevelChunk* pChunk = new LevelChunk(level, pData, pos);
-	pBitStream->Read((char*)pChunk->m_tileData, 16 * 16 * 128 / 2);
+	pBitStream->Read((char*)pChunk->m_tileData.m_data, 16 * 16 * 128 / 2);
 
-	if (m_pLevelData->getStorageVersion() >= 1)
+	if (m_storageVersion >= 1)
 	{
-		pBitStream->Read((char*)pChunk->m_lightSky, 16 * 16 * 128 / 2);
-		pBitStream->Read((char*)pChunk->m_lightBlk, 16 * 16 * 128 / 2);
+		pBitStream->Read((char*)pChunk->m_lightSky.m_data, 16 * 16 * 128 / 2);
+		pBitStream->Read((char*)pChunk->m_lightBlk.m_data, 16 * 16 * 128 / 2);
 	}
 
 	pBitStream->Read((char*)pChunk->m_updateMap, sizeof pChunk->m_updateMap);
@@ -302,10 +309,9 @@ void ExternalFileLevelStorage::loadEntities(Level* level, LevelChunk* chunk)
 					}
 				}
 			}
-			else
-			{
-				delete tag; // not what we want, banish it to the shadow realm
-			}
+            
+            tag->deleteChildren();
+            delete tag;
 		}
 
 		if (data)
@@ -330,13 +336,13 @@ void ExternalFileLevelStorage::save(Level* level, LevelChunk* chunk)
 	}
 
 	RakNet::BitStream bs;
-	bs.Write((const char*)chunk->m_pBlockData, 16 * 16 * 128 * sizeof(TileID));
-	bs.Write((const char*)chunk->m_tileData,   16 * 16 * 128 / 2);
+	bs.Write((const char*)chunk->m_pBlockData,        16 * 16 * 128 * sizeof(TileID));
+	bs.Write((const char*)chunk->m_tileData.m_data, chunk->m_tileData.m_size);
 
 	if (m_pLevelData->getStorageVersion() >= 1)
 	{
-		bs.Write((const char*)chunk->m_lightSky, 16 * 16 * 128 / 2);
-		bs.Write((const char*)chunk->m_lightBlk, 16 * 16 * 128 / 2);
+		bs.Write((const char*)chunk->m_lightSky.m_data, chunk->m_lightSky.m_size);
+		bs.Write((const char*)chunk->m_lightBlk.m_data, chunk->m_lightBlk.m_size);
 	}
 
 	bs.Write((const char*)chunk->m_updateMap, sizeof chunk->m_updateMap);
