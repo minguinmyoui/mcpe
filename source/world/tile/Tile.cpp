@@ -6,6 +6,7 @@
 	SPDX-License-Identifier: BSD-1-Clause
  ********************************************************************/
 
+#include "common/Logger.hpp"
 #include "world/level/Level.hpp"
 #include "world/item/TileItem.hpp"
 #include "world/entity/ItemEntity.hpp"
@@ -1097,9 +1098,9 @@ void Tile::wasExploded(Level* pLevel, const TilePos& pos)
 
 }
 
-int Tile::use(Level* pLevel, const TilePos& pos, Player* player)
+bool Tile::use(Level* pLevel, const TilePos& pos, Player* player)
 {
-	return 0;
+	return false;
 }
 
 void Tile::stepOn(Level* pLevel, const TilePos& pos, Entity* entity)

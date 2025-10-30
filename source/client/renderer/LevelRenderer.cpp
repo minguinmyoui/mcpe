@@ -7,9 +7,11 @@
  ********************************************************************/
 
 #include "LevelRenderer.hpp"
+
+#include "common/Logger.hpp"
+#include "common/Mth.hpp"
 #include "client/app/Minecraft.hpp"
 #include "renderer/GL/GL.hpp"
-#include "common/Mth.hpp"
 
 #include "world/tile/LeafTile.hpp"
 #include "world/tile/GrassTile.hpp"
@@ -1488,5 +1490,21 @@ void LevelRenderer::skyColorChanged()
 
 		field_88.push_back(pChunk);
 		pChunk->setDirty();
+	}
+}
+
+void LevelRenderer::levelEvent(Player* pPlayer, LevelEvent::ID eventId, const TilePos& pos, LevelEvent::Data data)
+{
+	switch (eventId)
+	{
+	case LevelEvent::SOUND_DOOR:
+		std::string snd;
+		if (Mth::random() < 0.5f)
+			snd = "random.door_open";
+		else
+			snd = "random.door_close";
+
+		m_pLevel->playSound(Vec3(pos) + 0.5f, snd, 1.0f, 0.9f + 0.1f * m_pLevel->m_random.nextFloat());
+		break;
 	}
 }

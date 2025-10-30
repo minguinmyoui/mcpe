@@ -9,12 +9,14 @@
 #include <stdint.h>
 
 #include "ExternalFileLevelStorage.hpp"
-#include "world/level/Level.hpp"
-#include "GetTime.h"
+
+#include "common/Logger.hpp"
 #include "nbt/CompoundTag.hpp"
 #include "nbt/NbtIo.hpp"
 #include "network/RakIO.hpp"
 #include "world/entity/EntityFactory.hpp"
+#include "world/level/Level.hpp"
+#include "thirdparty/raknet/GetTime.h"
 
 #ifndef DEMO
 
@@ -373,6 +375,7 @@ void ExternalFileLevelStorage::saveEntities(Level* level, LevelChunk* chunk)
 	RakNet::BitStream bs;
 	RakDataOutput dos = RakDataOutput(bs);
 	NbtIo::write(tag, dos);
+    tag.deleteChildren();
 
 	unsigned int size = bs.GetNumberOfBytesUsed();
 

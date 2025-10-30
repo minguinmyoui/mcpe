@@ -1,5 +1,6 @@
 #include "EntityFactory.hpp"
 #include "MobFactory.hpp"
+#include "common/Logger.hpp"
 #include "nbt/CompoundTag.hpp"
 
 #include "ItemEntity.hpp"
@@ -65,7 +66,7 @@ Entity* EntityFactory::LoadEntity(const CompoundTag& tag, Level* level)
         if (entityTypeDescriptor->isType(EntityType::ITEM))
         {
             ItemInstance* itemInstance = ((ItemEntity*)entity)->m_pItemInstance;
-            if (ItemInstance::isNull(itemInstance) || !Item::items[itemInstance->m_itemID])
+            if (ItemInstance::isNull(itemInstance))
             {
                 delete entity;
                 entity = nullptr;
